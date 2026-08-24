@@ -1,0 +1,94 @@
+configuration {
+    show-icons: true;
+    display-drun: "Apps";
+    drun-display-format: "{name}";
+    font: "JetBrainsMono Nerd Font 11";
+}
+
+* {
+    bg:        #1e1e2e;
+    surface:   #181825;
+    text:      #cdd6f4;
+    subtext:   #a6adc8;
+    mauve:     #cba6f7;
+    border:    #45475a;
+    selected:  #313244;
+
+    background-color: transparent;
+    text-color: @text;
+}
+
+window {
+    width: 520px;
+    border: 1px;
+    border-color: @border;
+    border-radius: 10px;
+    background-color: @bg;
+    padding: 20px;
+}
+
+mainbox {
+    background-color: transparent;
+    children: [ inputbar, listview ];
+    spacing: 15px;
+}
+
+inputbar {
+    background-color: @surface;
+    border: 1px;
+    border-color: @border;
+    border-radius: 7px;
+    padding: 10px 14px;
+    children: [ prompt, entry ];
+}
+
+prompt {
+    text-color: @mauve;
+    padding: 0px 8px 0px 0px;
+}
+
+entry {
+    text-color: @text;
+    placeholder: "Search applications...";
+    placeholder-color: @subtext;
+}
+
+listview {
+    columns: 1;
+    lines: 7;
+    spacing: 5px;
+    scrollbar: false;
+    fixed-height: true;
+}
+
+element {
+    padding: 9px 12px;
+    border-radius: 6px;
+    spacing: 10px;
+}
+
+element normal {
+    background-color: transparent;
+    text-color: @text;
+}
+
+element alternate {
+    background-color: transparent;
+    text-color: @text;
+}
+
+element selected {
+    background-color: @selected;
+    text-color: @mauve;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    vertical-align: 0.5;
+}
+
+element-icon {
+    background-color: transparent;
+    size: 28px;
+}
