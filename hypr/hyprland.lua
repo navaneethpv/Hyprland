@@ -48,9 +48,11 @@ local menu = "rofi -show drun -theme ~/.config/rofi/theme.rasi"
 -- Or execute your favorite apps at launch like this:
 --
  hl.on("hyprland.start", function () 
+    hl.exec_cmd("dbus-update-activation-environment --all")
     hl.exec_cmd(terminal)
 --   hl.exec_cmd("nm-applet")
     hl.exec_cmd("waybar & hyprpaper")
+    hl.exec_cmd("~/.config/hypr/scripts/change_wallpaper.sh")
 end)
 
 
@@ -262,6 +264,7 @@ hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 -- Applications
 hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("google-chrome-stable https://web.whatsapp.com/"))
 hl.bind("ALT + G", hl.dsp.exec_cmd("google-chrome-stable"))
+hl.bind("ALT + V", hl.dsp.exec_cmd("antigravity-ide"))
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("google-chrome-stable https://chatgpt.com/"))
 -- closeWindowBind:set_enabled(false)
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
@@ -277,6 +280,9 @@ hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(
 
 -- Toggle Waybar
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("pkill -SIGUSR1 waybar"))
+
+-- Change Wallpaper
+hl.bind("CTRL + SHIFT + B", hl.dsp.exec_cmd("~/.config/hypr/scripts/change_wallpaper.sh"))
 
 -- Lock screen
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))

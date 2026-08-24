@@ -1,0 +1,8 @@
+# This file contains fish universal variable definitions.
+# VERSION: 3.0
+SETUVAR fish_color_command:magenta
+SETUVAR fish_color_cwd:magenta
+SETUVAR fish_color_host:magenta
+SETUVAR fish_color_param:magenta
+SETUVAR fish_color_user:magenta
+SETUVAR fish_greeting:\x1d
