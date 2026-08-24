@@ -225,6 +225,7 @@ OFFICIAL_PACKAGES=(
     qt6-wayland
     polkit-gnome
     wl-clipboard
+    cliphist
 
     # Bar & App Launcher
     waybar
@@ -396,7 +397,12 @@ setup_symlinks() {
         log_success "Linked $folder"
     done
 
-    # Ensure Waybar helper scripts are executable
+    # Ensure helper scripts are executable
+    if [[ -d "$DOTFILES_DIR/hypr/scripts" ]]; then
+        log_info "Ensuring executable permissions on hypr scripts..."
+        chmod +x "$DOTFILES_DIR"/hypr/scripts/* 2>/dev/null || true
+    fi
+
     if [[ -d "$DOTFILES_DIR/waybar/scripts" ]]; then
         log_info "Ensuring executable permissions on waybar scripts..."
         chmod +x "$DOTFILES_DIR"/waybar/scripts/* 2>/dev/null || true
@@ -511,6 +517,7 @@ ${CLR_BOLD}Quick Launch:${CLR_RESET}
   - Keybindings:
       - App Launcher:  ${CLR_YELLOW}SUPER + D${CLR_RESET} (Rofi)
       - Terminal:      ${CLR_YELLOW}ALT + T${CLR_RESET} (Kitty)
+      - Clipboard:     ${CLR_YELLOW}SUPER + H${CLR_RESET} (Cliphist / Rofi)
       - Lock Screen:   ${CLR_YELLOW}SUPER + L${CLR_RESET} (Hyprlock)
       - File Manager:  ${CLR_YELLOW}SUPER + E${CLR_RESET} (Thunar)
       - Waybar Toggle: ${CLR_YELLOW}SUPER + B${CLR_RESET}

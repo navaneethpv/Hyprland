@@ -53,6 +53,9 @@ local menu = "rofi -show drun -theme ~/.config/rofi/theme.rasi"
 --   hl.exec_cmd("nm-applet")
     hl.exec_cmd("waybar & hyprpaper")
     hl.exec_cmd("~/.config/hypr/scripts/change_wallpaper.sh")
+    hl.exec_cmd("wl-paste --type text --watch cliphist store &")
+    hl.exec_cmd("wl-paste --type image --watch cliphist store &")
+    
 end)
 
 
@@ -307,9 +310,12 @@ hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("systemctl poweroff"))
 
 -- Reboot
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("systemctl reboot"))
+-- Clipboard Manager (Enter: Copy, Alt+Delete: Delete, Ctrl+Delete: Wipe)
+hl.bind(mainMod .. " + H", hl.dsp.exec_cmd("~/.config/hypr/scripts/clipboard.sh"))
+hl.bind(mainMod .. " + SHIFT + H", hl.dsp.exec_cmd("~/.config/hypr/scripts/clipboard.sh --wipe"))
 
 -- Move focus with mainMod + arrow keys
-hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
+hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" })) 
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + down",  hl.dsp.focus({ direction = "down" }))

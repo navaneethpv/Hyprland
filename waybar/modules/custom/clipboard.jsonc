@@ -1,0 +1,10 @@
+{
+	"custom/clipboard": {
+		"format": "󰅌",
+		"min-length": 2,
+		"max-length": 2,
+		"tooltip-format": "Clipboard Manager\n• Left-click: Open history (Super+H)\n• Right-click: Clear history",
+		"on-click": "~/.config/hypr/scripts/clipboard.sh",
+		"on-click-right": "~/.config/hypr/scripts/clipboard.sh --wipe"
+	}
+}

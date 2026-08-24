@@ -69,6 +69,10 @@
 	padding: 0 8px 0 2px;
 	background-color: @bg-1;
 }
+#custom-clipboard {
+	padding: 0 8px 0 2px;
+	background-color: @bg-1;
+}
 
 /* Right modules */
 
