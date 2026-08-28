@@ -55,6 +55,7 @@ local menu = "rofi -show drun -theme ~/.config/rofi/theme.rasi"
     hl.exec_cmd("~/.config/hypr/scripts/change_wallpaper.sh")
     hl.exec_cmd("wl-paste --type text --watch cliphist store &")
     hl.exec_cmd("wl-paste --type image --watch cliphist store &")
+    hl.exec_cmd("hypridle &")
     
 end)
 
@@ -292,6 +293,9 @@ hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprlock"))
 
 -- Lock + suspend
 hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("hyprlock && systemctl suspend"))
+
+-- Lid Switch (Lock & Suspend when laptop lid is closed)
+hl.bind("switch:on:Lid Switch", hl.dsp.exec_cmd("hyprlock && systemctl suspend"), { locked = true })
 
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen())
 

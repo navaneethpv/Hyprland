@@ -220,6 +220,7 @@ OFFICIAL_PACKAGES=(
     hyprland
     hyprpaper
     hyprlock
+    hypridle
     xdg-desktop-portal-hyprland
     qt5-wayland
     qt6-wayland
