@@ -17,6 +17,7 @@ NON_INTERACTIVE=false
 SKIP_PKGS=false
 ONLY_LINKS=false
 NO_BACKUP=false
+INSTALL_GPU=true
 
 # ANSI Color Codes
 CLR_RESET=$'\e[0m'
@@ -79,11 +80,12 @@ Options:
   --no-pkg, --skip-pkg   Skip package installation (only link configs and install fonts)
   --only-links           Only backup and symlink config folders
   --no-backup            Do not create backups of existing configuration directories
+  --no-gpu               Skip GPU driver auto-detection and installation
   -h, --help             Show this help message and exit
 
 Description:
   Installs all required dependencies (Hyprland, Waybar, Rofi, Kitty, Fish,
-  utilities, audio, fonts), installs custom Samurai & DSEG font packs,
+  GUI apps, utilities, audio, fonts), installs custom Samurai & DSEG font packs,
   backs up existing ~/.config entries, and symlinks dotfiles.
 EOF
 }
@@ -107,6 +109,10 @@ parse_args() {
                 ;;
             --no-backup)
                 NO_BACKUP=true
+                shift
+                ;;
+            --no-gpu)
+                INSTALL_GPU=false
                 shift
                 ;;
             -h|--help)
@@ -216,7 +222,7 @@ setup_aur_helper() {
 
 # Core Package Lists
 OFFICIAL_PACKAGES=(
-    # Hyprland & Wayland Base
+    # --- Hyprland & Wayland Base ---
     hyprland
     hyprpaper
     hyprlock
@@ -227,53 +233,127 @@ OFFICIAL_PACKAGES=(
     polkit-gnome
     wl-clipboard
     cliphist
+    egl-wayland
 
-    # Bar & App Launcher
+    # --- Bar & App Launcher ---
     waybar
     rofi
     fastfetch
 
-    # Shell & Terminal
+    # --- Shell & Terminals ---
     kitty
+    alacritty
     fish
+    zsh
 
-    # Audio & Media
+    # --- GUI Applications ---
+    thunar
+    tumbler
+    mousepad
+    loupe
+    krita
+    swappy
+    grim
+    slurp
+
+    # --- Audio & Media ---
     pipewire
     pipewire-pulse
     pipewire-alsa
+    pipewire-jack
     wireplumber
     playerctl
     libpulse
+    python-gobject
 
-    # Tools & System Utilities
+    # --- System Tools & Daemons ---
     brightnessctl
+    bluez
     bluez-utils
     networkmanager
+    power-profiles-daemon
+    gnome-keyring
     pacman-contrib
     libnotify
-    grim
-    slurp
-    swappy
-    thunar
-    tumbler
+    xdg-user-dirs
+
+    # --- CLI Utilities & Development ---
     fzf
     eza
     bat
     ripgrep
+    fd
+    tree
     jq
     unzip
+    zip
+    7zip
     wget
     curl
+    git
+    base-devel
+    nano
 
-    # Official Fonts
+    # --- Official Fonts ---
     ttf-jetbrains-mono-nerd
     ttf-font-awesome
 )
 
 AUR_PACKAGES=(
     google-chrome
+    visual-studio-code-bin
+    apple_cursor
     otf-commit-mono-nerd
 )
+
+# Detect and configure GPU drivers
+setup_gpu_drivers() {
+    if [[ "$SKIP_PKGS" == true || "$INSTALL_GPU" == false ]]; then
+        return 0
+    fi
+
+    log_step "Detecting Graphics Hardware"
+
+    local gpu_pkgs=()
+
+    # NVIDIA detection
+    if lspci 2>/dev/null | grep -iE 'vga|3d|display' | grep -iq 'nvidia'; then
+        log_info "NVIDIA GPU detected."
+        if confirm "Would you like to install NVIDIA drivers and utilities (nvidia-open-dkms, nvidia-utils, linux-headers)?" "Y"; then
+            gpu_pkgs+=(nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-settings linux-headers)
+        fi
+    fi
+
+    # Intel detection
+    if lspci 2>/dev/null | grep -iE 'vga|3d|display' | grep -iq 'intel'; then
+        log_info "Intel GPU detected."
+        if confirm "Would you like to install Intel graphics drivers (intel-media-driver, vulkan-intel, mesa)?" "Y"; then
+            gpu_pkgs+=(intel-media-driver vulkan-intel mesa)
+        fi
+    fi
+
+    # AMD detection
+    if lspci 2>/dev/null | grep -iE 'vga|3d|display' | grep -iq 'amd|radeon|ati'; then
+        log_info "AMD GPU detected."
+        if confirm "Would you like to install AMD graphics drivers (vulkan-radeon, mesa)?" "Y"; then
+            gpu_pkgs+=(vulkan-radeon mesa)
+        fi
+    fi
+
+    if [[ ${#gpu_pkgs[@]} -gt 0 ]]; then
+        local missing_gpu=()
+        for pkg in "${gpu_pkgs[@]}"; do
+            if ! pacman -Qi "$pkg" &>/dev/null; then
+                missing_gpu+=("$pkg")
+            fi
+        done
+
+        if [[ ${#missing_gpu[@]} -gt 0 ]]; then
+            log_info "Installing detected GPU driver packages: ${missing_gpu[*]}"
+            sudo pacman -S --needed --noconfirm "${missing_gpu[@]}" || log_warn "Some GPU packages could not be installed directly."
+        fi
+    fi
+}
 
 # Install Packages
 install_packages() {
@@ -301,6 +381,10 @@ install_packages() {
         log_success "All official packages are already installed."
     fi
 
+    # Setup GPU drivers
+    setup_gpu_drivers
+
+    # Setup AUR packages
     if [[ -n "$AUR_HELPER" && ${#AUR_PACKAGES[@]} -gt 0 ]]; then
         log_step "Installing AUR Packages"
 
@@ -340,6 +424,15 @@ install_fonts() {
     log_info "Updating system font cache (fc-cache)..."
     fc-cache -f "$FONTS_DIR"
     log_success "Font cache refreshed."
+}
+
+# Setup User Directories
+setup_user_dirs() {
+    log_step "Initializing Standard User Directories"
+    if command -v xdg-user-dirs-update &>/dev/null; then
+        xdg-user-dirs-update
+        log_success "Standard XDG user directories created."
+    fi
 }
 
 # Backup and Symlink Dotfiles
@@ -453,6 +546,18 @@ setup_services() {
                 log_skip "NetworkManager service already enabled."
             fi
         fi
+
+        # Power Profiles Daemon
+        if pacman -Qi power-profiles-daemon &>/dev/null; then
+            if ! systemctl is-enabled power-profiles-daemon.service &>/dev/null; then
+                if confirm "Would you like to enable the Power Profiles Daemon service?" "Y"; then
+                    sudo systemctl enable --now power-profiles-daemon.service || true
+                    log_success "Power Profiles Daemon service enabled."
+                fi
+            else
+                log_skip "Power Profiles Daemon already enabled."
+            fi
+        fi
     fi
 }
 
@@ -497,6 +602,7 @@ main() {
     fi
 
     install_fonts
+    setup_user_dirs
     setup_symlinks
     setup_services
     setup_shell
@@ -508,16 +614,19 @@ ${CLR_BOLD}${CLR_GREEN}==================================================
 ==================================================${CLR_RESET}
 
 ${CLR_BOLD}Summary of Actions:${CLR_RESET}
-  - Dependencies & AUR packages verified / installed
-  - Custom font packs (Samurai & DSEG) installed and cached
+  - Dependencies, applications, & AUR packages installed
+  - Custom typography packs (Samurai & DSEG) installed and cached
   - Dotfiles symlinked into ${CONFIG_DIR}
-  - Audio and system services configured
+  - Audio, Bluetooth, and Power system services configured
+  - Default shell set to Fish
 
 ${CLR_BOLD}Quick Launch:${CLR_RESET}
   - Start Hyprland by running: ${CLR_CYAN}Hyprland${CLR_RESET} (or login via display manager)
   - Keybindings:
       - App Launcher:  ${CLR_YELLOW}SUPER + D${CLR_RESET} (Rofi)
       - Terminal:      ${CLR_YELLOW}ALT + T${CLR_RESET} (Kitty)
+      - Browser:       ${CLR_YELLOW}ALT + G${CLR_RESET} (Google Chrome)
+      - IDE / Code:    ${CLR_YELLOW}ALT + V${CLR_RESET} (Antigravity IDE / Code)
       - Clipboard:     ${CLR_YELLOW}SUPER + H${CLR_RESET} (Cliphist / Rofi)
       - Lock Screen:   ${CLR_YELLOW}SUPER + L${CLR_RESET} (Hyprlock)
       - File Manager:  ${CLR_YELLOW}SUPER + E${CLR_RESET} (Thunar)
