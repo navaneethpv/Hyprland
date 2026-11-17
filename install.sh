@@ -255,6 +255,7 @@ OFFICIAL_PACKAGES=(
     swappy
     grim
     slurp
+    mpv
 
     # --- Audio & Media ---
     pipewire
@@ -276,6 +277,9 @@ OFFICIAL_PACKAGES=(
     pacman-contrib
     libnotify
     xdg-user-dirs
+    mako
+    swayosd
+    btop
 
     # --- CLI Utilities & Development ---
     fzf
@@ -301,7 +305,10 @@ OFFICIAL_PACKAGES=(
 
 AUR_PACKAGES=(
     google-chrome
+    brave-bin
     visual-studio-code-bin
+    postman-bin
+    mpvpaper
     apple_cursor
     otf-commit-mono-nerd
 )
@@ -444,6 +451,9 @@ CONFIG_FOLDERS=(
     "fastfetch"
     "fish"
     "walpaper"
+    "mako"
+    "swappy"
+    "btop"
 )
 
 setup_symlinks() {

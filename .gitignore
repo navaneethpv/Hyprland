@@ -1,0 +1,51 @@
+# ==============================================================================
+# Git Ignore Rules for Dotfiles
+# Prevents accidental commit of sensitive credentials, secrets, tokens & caches
+# ==============================================================================
+
+# OS & Environment
+.DS_Store
+Thumbs.db
+
+# Editor & IDE settings / caches
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Backups & Temporary Directories
+dotfiles_backup_*/
+*.bak
+*.tmp
+*.log
+
+# Sensitive Credentials, Keys & Secrets (CRITICAL)
+*.pem
+*.key
+*.id_rsa
+*.id_ed25519
+*.pub
+*token*
+*credential*
+*secret*
+.env
+.env.*
+*.env
+*.session
+*.oauth
+
+# Caches & Runtime Artifacts
+__pycache__/
+*.pyc
+node_modules/
+.cache/
+Cache/
+Cookies
+Cookies-journal
+History
+History-journal
+
+# Fish shell history
+fish/fish_history
+

@@ -56,20 +56,33 @@ local menu = "rofi -show drun -theme ~/.config/rofi/theme.rasi"
     hl.exec_cmd("wl-paste --type text --watch cliphist store &")
     hl.exec_cmd("wl-paste --type image --watch cliphist store &")
     hl.exec_cmd("hypridle &")
+    hl.exec_cmd("mako &")
+    hl.exec_cmd("swayosd-server &")
     
 end)
 
-
--------------------------------
----- ENVIRONMENT VARIABLES ----
--------------------------------
 
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Environment-variables/
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 
+-- Dynamic GPU Mode Selection based on your state file
+local gpu_mode_file = os.getenv("HOME") .. "/.config/hypr/gpu/mode"
+local current_mode = "intel"
 
+local f = io.open(gpu_mode_file, "r")
+if f then
+    current_mode = f:read("*l"):gsub("%s+", "")
+    f:close()
+end
+
+if current_mode == "nvidia" then
+    hl.env("AQ_DRM_DEVICES", "/dev/dri/card0:/dev/dri/card1")
+    hl.env("GBM_BACKEND", "nvidia-drm")
+    hl.env("__GLX_VENDOR_LIBRARY_NAME", "nvidia")
+    hl.env("LIBVA_DRIVER_NAME", "nvidia")
+end
 -----------------------
 ----- PERMISSIONS -----
 -----------------------
@@ -234,7 +247,7 @@ hl.config({
 
         follow_mouse = 1,
 
-        sensitivity = 0, -- -1.0 - 1.0, 0 means no modification.
+        sensitivity = 0.6, -- -1.0 - 1.0, 0 means no modification.
 
         touchpad = {
             natural_scroll = false,
@@ -252,7 +265,7 @@ hl.gesture({
 -- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Devices/ for more
 hl.device({
     name        = "epic-mouse-v1",
-    sensitivity = -0.5,
+    sensitivity = 1.0,
 })
 
 
@@ -317,6 +330,14 @@ hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("systemctl reboot"))
 -- Clipboard Manager (Enter: Copy, Alt+Delete: Delete, Ctrl+Delete: Wipe)
 hl.bind(mainMod .. " + H", hl.dsp.exec_cmd("~/.config/hypr/scripts/clipboard.sh"))
 hl.bind(mainMod .. " + SHIFT + H", hl.dsp.exec_cmd("~/.config/hypr/scripts/clipboard.sh --wipe"))
+-- GPU MODE SWITCHING
+hl.bind(mainMod .. " + SHIFT + I", hl.dsp.exec_cmd(
+    "~/.config/hypr/scripts/gpu-intel.sh"
+))
+
+hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(
+    "~/.config/hypr/scripts/gpu-nvidia.sh"
+))
 
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" })) 
@@ -339,6 +360,16 @@ hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:mag
 -- Scroll through existing workspaces with mainMod + scroll
 hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
 hl.bind(mainMod .. " + mouse_up",   hl.dsp.focus({ workspace = "e-1" }))
+
+-- ALT + TAB: Switch window and transfer fullscreen
+hl.bind("ALT + TAB", function()
+    hl.dispatch(hl.dsp.window.fullscreen())
+    hl.dispatch(hl.dsp.window.cycle_next())
+    hl.dispatch(hl.dsp.window.fullscreen())
+end)
+
+-- ALT + SHIFT + TAB: Previous window in current workspace
+hl.bind("ALT + SHIFT + TAB", hl.dsp.window.cycle_next({ next = false }))
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })

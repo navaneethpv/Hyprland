@@ -3,9 +3,6 @@
 # Directories to search for wallpapers
 WALLPAPER_DIRS=(
     "$HOME/.config/walpaper"
-    "$HOME/Pictures/Wallpapers"
-    "$HOME/Pictures/wallpapers"
-    "$HOME/Pictures"
 )
 
 TARGET=""
@@ -19,7 +16,8 @@ else
             while IFS= read -r -d '' file; do
                 filename=$(basename "$file")
                 # Exclude avatars, lockscreens, or temp files
-                if [[ "$filename" != "avatar."* ]] && [[ "$filename" != "current_wallpaper"* ]] && [[ "$filename" != "lockscreen."* ]]; then
+                if [[ "$filename" != "avatar."* ]] && [[ "$filename" != "current_wallpaper"* ]]; then
+                # if [[ "$filename" != "avatar."* ]] && [[ "$filename" != "current_wallpaper"* ]] && [[ "$filename" != "lockscreen."* ]]; then
                     real_file="$(realpath "$file")"
                     # Avoid duplicates
                     if [[ ! " ${IMAGES[*]} " =~ " ${real_file} " ]]; then

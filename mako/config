@@ -1,0 +1,36 @@
+# Global Settings
+max-history=30
+layer=overlay
+anchor=top-right
+font=JetBrainsMono Nerd Font 10
+width=300
+height=110
+margin=15
+padding=12
+border-size=1
+border-radius=2
+default-timeout=3000
+
+# Noir Aesthetic Styling (Dark & Minimalist)
+background-color=#11111b
+text-color=#cdd6f4
+border-color=#313244
+progress-color=over #45475a
+
+[urgency=low]
+background-color=#11111b
+text-color=#cdd6f4
+border-color=#313244
+default-timeout=3000
+
+[urgency=normal]
+background-color=#11111b
+text-color=#cdd6f4
+border-color=#45475a
+default-timeout=3000
+
+[urgency=high]
+background-color=#11111b
+text-color=#f38ba8
+border-color=#f38ba8
+default-timeout=3000
